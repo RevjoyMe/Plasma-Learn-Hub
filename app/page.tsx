@@ -3,6 +3,7 @@
 import { Card, CardContent, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
+import { DailyQuiz } from "@/components/daily-quiz"
 
 export default function Home() {
 
@@ -124,15 +125,59 @@ export default function Home() {
         </div>
 
         <div className="text-center mb-12">
-          <Link href="/leaderboard">
-            <Button
-              size="lg"
-              variant="outline"
-              className="border-teal-600 text-teal-600 hover:bg-teal-50 bg-transparent px-8 py-3"
-            >
-              🏆 View Leaderboards
-            </Button>
-          </Link>
+          <div className="flex justify-center gap-4 flex-wrap">
+            <Link href="/leaderboard">
+              <Button
+                size="lg"
+                variant="outline"
+                className="border-teal-600 text-teal-600 hover:bg-teal-50 bg-transparent px-8 py-3"
+              >
+                🏆 View Leaderboards
+              </Button>
+            </Link>
+            <Link href="/profile">
+              <Button
+                size="lg"
+                variant="outline"
+                className="border-purple-600 text-purple-600 hover:bg-purple-50 bg-transparent px-8 py-3"
+              >
+                👤 My Profile
+              </Button>
+            </Link>
+            <Link href="/quests">
+              <Button
+                size="lg"
+                variant="outline"
+                className="border-yellow-600 text-yellow-600 hover:bg-yellow-50 bg-transparent px-8 py-3"
+              >
+                🎯 Quests
+              </Button>
+            </Link>
+            <Link href="/partnerships">
+              <Button
+                size="lg"
+                variant="outline"
+                className="border-blue-600 text-blue-600 hover:bg-blue-50 bg-transparent px-8 py-3"
+              >
+                🤝 Partnerships
+              </Button>
+            </Link>
+          </div>
+        </div>
+
+        {/* Daily Quiz Section */}
+        <div className="mb-12">
+          <DailyQuiz
+            question="What is the primary purpose of a stablecoin?"
+            options={[
+              "To provide high volatility for trading profits",
+              "To maintain a stable value relative to a specific asset or basket of assets",
+              "To replace traditional fiat currencies completely",
+              "To offer the highest possible returns on investment"
+            ]}
+            correctAnswer="To maintain a stable value relative to a specific asset or basket of assets"
+            explanation="Stablecoins are designed to maintain a stable value relative to a specific asset (like USD) or basket of assets, providing price stability in the volatile cryptocurrency market."
+          />
         </div>
 
         <div className="grid md:grid-cols-3 gap-6">

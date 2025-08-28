@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Trophy, Medal, Award, Home, Play, Gamepad2, Coins, Brain } from "lucide-react"
 import Link from "next/link"
 import { getLeaderboard, get2048Leaderboard, getXPLQuizLeaderboard } from "@/lib/leaderboard"
+import { LeaderboardRewards } from "@/components/leaderboard-rewards"
 
 type GameType = "quiz" | "xpl-quiz" | "2048"
 
@@ -91,6 +92,15 @@ export default function LeaderboardPage() {
           <div className="text-4xl font-black text-teal-600 mb-6">PLASMA</div>
           <h1 className="text-4xl font-black mb-4 text-gray-900">Leaderboards</h1>
           <p className="text-gray-600">See how you rank against other players</p>
+        </div>
+
+        {/* Rewards System */}
+        <div className="mb-8">
+          <LeaderboardRewards
+            prizePool={0.85}
+            totalParticipants={leaderboard.length}
+            endDate="Monday, 00:00 UTC"
+          />
         </div>
 
         {/* Game Selection */}
