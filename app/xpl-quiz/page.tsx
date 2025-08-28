@@ -55,7 +55,10 @@ export default function XPLQuizPage() {
 
   const handleGamePurchase = async () => {
     try {
-      await purchaseGame()
+      console.log("Starting game purchase...")
+      const gameId = await purchaseGame()
+      console.log("Game purchased successfully, gameId:", gameId)
+      
       // Generate 20 random questions
       const randomQuestions = getRandomQuestions(20)
       setQuizState((prev) => ({
@@ -66,6 +69,8 @@ export default function XPLQuizPage() {
       }))
     } catch (error) {
       console.error("Failed to purchase game:", error)
+      // Показываем ошибку пользователю
+      alert(`Failed to purchase game: ${error instanceof Error ? error.message : 'Unknown error'}`)
     }
   }
 
@@ -179,7 +184,7 @@ export default function XPLQuizPage() {
                     <div className="text-sm text-gray-500">Questions</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-xl font-bold text-yellow-600">0.01 XPL</div>
+                    <div className="text-xl font-bold text-yellow-600">0.001 XPL</div>
                     <div className="text-sm text-gray-500">Price</div>
                   </div>
                   <div className="text-center">
@@ -205,7 +210,7 @@ export default function XPLQuizPage() {
               onConnect={connectWallet}
               onRefreshBalance={async () => {}}
               gameType="xpl-quiz"
-              price="0.01 XPL"
+              price="0.001 XPL"
               onPayment={handleGamePurchase}
             />
           </div>

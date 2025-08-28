@@ -91,20 +91,28 @@ export class PlasmaBlockchain {
     }
 
     try {
+      console.log("Getting game price...")
       // Get game price
       const gamePrice = await this.contract.gamePrice()
+      console.log("Game price:", ethers.formatEther(gamePrice), "XPL")
 
+      console.log("Calling purchaseGame contract method...")
       // Purchase game
       const tx = await this.contract.purchaseGame({ value: gamePrice })
+      console.log("Transaction sent:", tx.hash)
+      
+      console.log("Waiting for transaction confirmation...")
       const receipt = await tx.wait()
+      console.log("Transaction confirmed:", receipt.hash)
 
       // Extract game ID from event logs
       const gameId = this.extractGameIdFromReceipt(receipt)
+      console.log("Extracted game ID:", gameId)
 
       return gameId
     } catch (error) {
       console.error("Error purchasing game:", error)
-      throw new Error("Failed to purchase game")
+      throw new Error(`Failed to purchase game: ${error instanceof Error ? error.message : 'Unknown error'}`)
     }
   }
 

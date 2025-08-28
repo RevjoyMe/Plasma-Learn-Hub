@@ -44,7 +44,7 @@ export default function XPLQuizNicknamePage() {
           <div className="text-center mb-8">
             <div className="text-4xl font-black text-teal-600 mb-6">PLASMA</div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">XPL Stablecoin Quiz</h1>
-            <p className="text-gray-600">Premium quiz • 20 questions • 0.01 XPL</p>
+                            <p className="text-gray-600">Premium quiz • 20 questions • 0.001 XPL</p>
           </div>
 
           {/* Nickname Form */}

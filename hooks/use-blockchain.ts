@@ -82,7 +82,9 @@ export function useBlockchain(contractAddress = "") {
     }
 
     try {
+      console.log("Calling blockchain.purchaseGame()...")
       const gameId = await blockchain.purchaseGame()
+      console.log("Purchase successful, gameId:", gameId)
 
       // Update balance after purchase
       const newBalance = await blockchain.getBalance()
@@ -96,6 +98,7 @@ export function useBlockchain(contractAddress = "") {
 
       return gameId
     } catch (error) {
+      console.error("Purchase error in useBlockchain:", error)
       throw new Error(error instanceof Error ? error.message : "Failed to purchase game")
     }
   }, [blockchain, walletState.isConnected, walletState.address])

@@ -15,7 +15,7 @@ import Link from "next/link"
 import { addTo2048Leaderboard } from "@/lib/leaderboard"
 
 // Contract address - should be set via environment variable in production
-const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || "0xbAC7A6C4bFC7D037b44d39E3f2A9f0aB1CcC2962"
+const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || "0xB9C509d0aA9ca8B083E73531Ab06Fb81B26DC918"
 
 export default function Game2048Page() {
   const { gameState, move, startNewGame, endGame } = useGame2048()

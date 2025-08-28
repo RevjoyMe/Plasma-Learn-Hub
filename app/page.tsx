@@ -1,80 +1,10 @@
 "use client"
 
-import { useState } from "react"
 import { Card, CardContent, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 
-type ActivityType = "menu" | "quiz" | "xpl-quiz" | "game"
-
 export default function Home() {
-  const [currentActivity, setCurrentActivity] = useState<ActivityType>("menu")
-
-  if (currentActivity === "quiz") {
-    if (typeof window !== "undefined") {
-      window.location.href = "/nickname"
-    }
-    return (
-      <div className="mb-4 text-black">
-        <div className="max-w-md mx-auto mb-4">
-          <Button
-            variant="outline"
-            onClick={() => setCurrentActivity("menu")}
-            className="mb-4 bg-white border-gray-200 text-gray-700 hover:bg-gray-50"
-          >
-            ← Back to Menu
-          </Button>
-        </div>
-        <div className="text-center">
-          <p className="text-gray-600 mb-4">Redirecting to quiz...</p>
-        </div>
-      </div>
-    )
-  }
-
-  if (currentActivity === "xpl-quiz") {
-    if (typeof window !== "undefined") {
-      window.location.href = "/xpl-quiz/nickname"
-    }
-    return (
-      <div className="mb-4 text-black">
-        <div className="max-w-md mx-auto mb-4">
-          <Button
-            variant="outline"
-            onClick={() => setCurrentActivity("menu")}
-            className="mb-4 bg-white border-gray-200 text-gray-700 hover:bg-gray-50"
-          >
-            ← Back to Menu
-          </Button>
-        </div>
-        <div className="text-center">
-          <p className="text-gray-600 mb-4">Redirecting to XPL quiz...</p>
-        </div>
-      </div>
-    )
-  }
-
-  if (currentActivity === "game") {
-    if (typeof window !== "undefined") {
-      window.location.href = "/2048"
-    }
-    return (
-      <div className="mb-4 text-black">
-        <div className="max-w-md mx-auto mb-4">
-          <Button
-            variant="outline"
-            onClick={() => setCurrentActivity("menu")}
-            className="mb-4 bg-white border-gray-200 text-gray-700 hover:bg-gray-50"
-          >
-            ← Back to Menu
-          </Button>
-        </div>
-        <div className="text-center">
-          <p className="text-gray-600 mb-4">Redirecting to 2048 game...</p>
-        </div>
-      </div>
-    )
-  }
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
@@ -100,10 +30,10 @@ export default function Home() {
 
         <div className="grid md:grid-cols-3 gap-8 mb-12">
           {/* Quiz Card */}
-          <Card
-            className="cursor-pointer hover:shadow-xl transition-all duration-300 border-0 overflow-hidden group"
-            onClick={() => setCurrentActivity("quiz")}
-          >
+          <Link href="/nickname">
+            <Card
+              className="cursor-pointer hover:shadow-xl transition-all duration-300 border-0 overflow-hidden group"
+            >
             <div className="bg-emerald-500 p-6 text-white">
               <CardTitle className="flex items-center gap-3 text-2xl font-bold">
                 <span className="text-3xl">📚</span>
@@ -128,12 +58,13 @@ export default function Home() {
                 Start Learning
               </Button>
             </CardContent>
-          </Card>
+            </Card>
+          </Link>
 
-          <Card
-            className="cursor-pointer hover:shadow-xl transition-all duration-300 border-0 overflow-hidden group"
-            onClick={() => setCurrentActivity("xpl-quiz")}
-          >
+          <Link href="/xpl-quiz/nickname">
+            <Card
+              className="cursor-pointer hover:shadow-xl transition-all duration-300 border-0 overflow-hidden group"
+            >
             <div className="bg-yellow-500 p-6 text-white">
               <CardTitle className="flex items-center gap-3 text-2xl font-bold">
                 <span className="text-3xl">📚</span>
@@ -147,7 +78,7 @@ export default function Home() {
               <div className="space-y-3 mb-6">
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Price:</span>
-                  <span className="font-semibold text-yellow-600">0.01 XPL</span>
+                  <span className="font-semibold text-yellow-600">0.001 XPL</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Questions:</span>
@@ -158,13 +89,14 @@ export default function Home() {
                 Premium Quiz
               </Button>
             </CardContent>
-          </Card>
+            </Card>
+          </Link>
 
           {/* 2048 Game Card */}
-          <Card
-            className="cursor-pointer hover:shadow-xl transition-all duration-300 border-0 overflow-hidden group"
-            onClick={() => setCurrentActivity("game")}
-          >
+          <Link href="/2048">
+            <Card
+              className="cursor-pointer hover:shadow-xl transition-all duration-300 border-0 overflow-hidden group"
+            >
             <div className="bg-blue-500 p-6 text-white">
               <CardTitle className="flex items-center gap-3 text-2xl font-bold">
                 <span className="text-3xl">🎮</span>
@@ -178,7 +110,7 @@ export default function Home() {
               <div className="space-y-3 mb-6">
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Price:</span>
-                  <span className="font-semibold text-blue-600">0.025 XPL</span>
+                  <span className="font-semibold text-blue-600">0.001 XPL</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Type:</span>
@@ -187,7 +119,8 @@ export default function Home() {
               </div>
               <Button className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3">Play Game</Button>
             </CardContent>
-          </Card>
+            </Card>
+          </Link>
         </div>
 
         <div className="text-center mb-12">
