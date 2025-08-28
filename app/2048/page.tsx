@@ -182,9 +182,64 @@ export default function Game2048Page() {
   }
 
   const handleSaveAndClose = async () => {
-    await handleCompleteGame()
-    setShowGameOverModal(false)
-    setShowWinModal(false)
+    if (!gameState.gameId || !walletState.isConnected) {
+      setShowGameOverModal(false)
+      setShowWinModal(false)
+      return
+    }
+
+    setIsCompleting(true)
+    try {
+      // Save locally only, without blockchain transaction
+      if (walletState.address) {
+        const existingEntries = JSON.parse(localStorage.getItem("leaderboard_2048_global") || "[]")
+        const existingPlayerIndex = existingEntries.findIndex(
+          (entry: any) => entry.walletAddress === walletState.address,
+        )
+
+        const timesReached2048 = gameState.maxTile >= 2048 ? 1 : 0
+
+        if (existingPlayerIndex >= 0) {
+          existingEntries[existingPlayerIndex].score = Math.max(
+            existingEntries[existingPlayerIndex].score,
+            gameState.score,
+          )
+          existingEntries[existingPlayerIndex].gamesPlayed += 1
+          existingEntries[existingPlayerIndex].timesReached2048 += timesReached2048
+          existingEntries[existingPlayerIndex].timestamp = Date.now()
+          existingEntries[existingPlayerIndex].date = new Date().toISOString().split("T")[0]
+
+          const types = ["global", "weekly", "daily"]
+          types.forEach((type) => {
+            const key = `leaderboard_2048_${type}`
+            const entries = JSON.parse(localStorage.getItem(key) || "[]")
+            const playerIndex = entries.findIndex((entry: any) => entry.walletAddress === walletState.address)
+            if (playerIndex >= 0) {
+              entries[playerIndex] = existingEntries[existingPlayerIndex]
+              localStorage.setItem(key, JSON.stringify(entries))
+            }
+          })
+        } else {
+          addTo2048Leaderboard({
+            nickname: `Player ${walletState.address.slice(0, 6)}`,
+            score: gameState.score,
+            maxTile: gameState.maxTile,
+            walletAddress: walletState.address,
+            gamesPlayed: 1,
+            timesReached2048: timesReached2048,
+          })
+        }
+      }
+
+      // Close modals
+      setShowGameOverModal(false)
+      setShowWinModal(false)
+    } catch (error) {
+      console.error("Local save failed:", error)
+      alert("Failed to save game locally.")
+    } finally {
+      setIsCompleting(false)
+    }
   }
 
   return (
@@ -392,7 +447,7 @@ export default function Game2048Page() {
                   variant="outline"
                   className="flex-1 border-teal-600 text-teal-600 hover:bg-teal-50 bg-transparent"
                 >
-                  {isCompleting ? "Saving..." : "Save & Close"}
+                  {isCompleting ? "Saving..." : "Save Locally & Close"}
                 </Button>
               </div>
             </CardContent>
@@ -424,7 +479,7 @@ export default function Game2048Page() {
                   variant="outline"
                   className="flex-1 border-teal-600 text-teal-600 hover:bg-teal-50 bg-transparent"
                 >
-                  {isCompleting ? "Saving..." : "Save & Close"}
+                  {isCompleting ? "Saving..." : "Save Locally & Close"}
                 </Button>
               </div>
             </CardContent>
