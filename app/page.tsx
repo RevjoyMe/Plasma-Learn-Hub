@@ -1,0 +1,233 @@
+"use client"
+
+import { useState } from "react"
+import { Card, CardContent, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import Link from "next/link"
+
+type ActivityType = "menu" | "quiz" | "xpl-quiz" | "game"
+
+export default function Home() {
+  const [currentActivity, setCurrentActivity] = useState<ActivityType>("menu")
+
+  if (currentActivity === "quiz") {
+    if (typeof window !== "undefined") {
+      window.location.href = "/nickname"
+    }
+    return (
+      <div className="mb-4 text-black">
+        <div className="max-w-md mx-auto mb-4">
+          <Button
+            variant="outline"
+            onClick={() => setCurrentActivity("menu")}
+            className="mb-4 bg-white border-gray-200 text-gray-700 hover:bg-gray-50"
+          >
+            ← Back to Menu
+          </Button>
+        </div>
+        <div className="text-center">
+          <p className="text-gray-600 mb-4">Redirecting to quiz...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (currentActivity === "xpl-quiz") {
+    if (typeof window !== "undefined") {
+      window.location.href = "/xpl-quiz/nickname"
+    }
+    return (
+      <div className="mb-4 text-black">
+        <div className="max-w-md mx-auto mb-4">
+          <Button
+            variant="outline"
+            onClick={() => setCurrentActivity("menu")}
+            className="mb-4 bg-white border-gray-200 text-gray-700 hover:bg-gray-50"
+          >
+            ← Back to Menu
+          </Button>
+        </div>
+        <div className="text-center">
+          <p className="text-gray-600 mb-4">Redirecting to XPL quiz...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (currentActivity === "game") {
+    if (typeof window !== "undefined") {
+      window.location.href = "/2048"
+    }
+    return (
+      <div className="mb-4 text-black">
+        <div className="max-w-md mx-auto mb-4">
+          <Button
+            variant="outline"
+            onClick={() => setCurrentActivity("menu")}
+            className="mb-4 bg-white border-gray-200 text-gray-700 hover:bg-gray-50"
+          >
+            ← Back to Menu
+          </Button>
+        </div>
+        <div className="text-center">
+          <p className="text-gray-600 mb-4">Redirecting to 2048 game...</p>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 p-6">
+      <div className="max-w-6xl mx-auto">
+        <div className="text-center mb-12">
+          <h1 className="text-5xl font-bold text-gray-900 mb-4">Plasma Learn Hub</h1>
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            A high-performance gaming platform built for stablecoins. Learn about cryptocurrency while having fun with
+            blockchain-powered games.
+          </p>
+          <div className="mt-6">
+            <Link
+              href="https://discord.com/invite/plasmafdn"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center space-x-2 text-indigo-600 hover:text-indigo-800 font-medium"
+            >
+              <span>💬</span>
+              <span>Join Plasma Discord Community</span>
+            </Link>
+          </div>
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-8 mb-12">
+          {/* Quiz Card */}
+          <Card
+            className="cursor-pointer hover:shadow-xl transition-all duration-300 border-0 overflow-hidden group"
+            onClick={() => setCurrentActivity("quiz")}
+          >
+            <div className="bg-emerald-500 p-6 text-white">
+              <CardTitle className="flex items-center gap-3 text-2xl font-bold">
+                <span className="text-3xl">📚</span>
+                Stablecoin Quiz
+              </CardTitle>
+            </div>
+            <CardContent className="p-6 bg-white">
+              <p className="text-gray-700 mb-6 text-lg leading-relaxed">
+                Test your knowledge about stablecoins with comprehensive questions.
+              </p>
+              <div className="space-y-3 mb-6">
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Price:</span>
+                  <span className="font-semibold text-blue-600">FREE!</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Questions:</span>
+                  <span className="font-semibold">Unlimited</span>
+                </div>
+              </div>
+              <Button className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-semibold py-3">
+                Start Learning
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card
+            className="cursor-pointer hover:shadow-xl transition-all duration-300 border-0 overflow-hidden group"
+            onClick={() => setCurrentActivity("xpl-quiz")}
+          >
+            <div className="bg-yellow-500 p-6 text-white">
+              <CardTitle className="flex items-center gap-3 text-2xl font-bold">
+                <span className="text-3xl">📚</span>
+                XPL Stablecoin Quiz
+              </CardTitle>
+            </div>
+            <CardContent className="p-6 bg-white">
+              <p className="text-gray-700 mb-6 text-lg leading-relaxed">
+                Premium quiz with 20 random questions. Test your expertise!
+              </p>
+              <div className="space-y-3 mb-6">
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Price:</span>
+                  <span className="font-semibold text-yellow-600">0.01 XPL</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Questions:</span>
+                  <span className="font-semibold">20 Random</span>
+                </div>
+              </div>
+              <Button className="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-3">
+                Premium Quiz
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* 2048 Game Card */}
+          <Card
+            className="cursor-pointer hover:shadow-xl transition-all duration-300 border-0 overflow-hidden group"
+            onClick={() => setCurrentActivity("game")}
+          >
+            <div className="bg-blue-500 p-6 text-white">
+              <CardTitle className="flex items-center gap-3 text-2xl font-bold">
+                <span className="text-3xl">🎮</span>
+                2048 Game
+              </CardTitle>
+            </div>
+            <CardContent className="p-6 bg-white">
+              <p className="text-gray-700 mb-6 text-lg leading-relaxed">
+                Classic 2048 puzzle game with blockchain integration. Combine tiles to reach 2048!
+              </p>
+              <div className="space-y-3 mb-6">
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Price:</span>
+                  <span className="font-semibold text-blue-600">0.025 XPL</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Type:</span>
+                  <span className="font-semibold">Puzzle Game</span>
+                </div>
+              </div>
+              <Button className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3">Play Game</Button>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="text-center mb-12">
+          <Link href="/leaderboard">
+            <Button
+              size="lg"
+              variant="outline"
+              className="border-teal-600 text-teal-600 hover:bg-teal-50 bg-transparent px-8 py-3"
+            >
+              🏆 View Leaderboards
+            </Button>
+          </Link>
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-6">
+          <div className="text-center p-6 bg-white rounded-lg shadow-sm">
+            <div className="w-12 h-12 bg-orange-500 rounded-lg mx-auto mb-4 flex items-center justify-center">
+              <span className="text-white text-xl">🔗</span>
+            </div>
+            <h3 className="font-semibold text-gray-900 mb-2">Blockchain Powered</h3>
+            <p className="text-gray-600 text-sm">Secure payments with XPL tokens on Plasma Network</p>
+          </div>
+
+          <div className="text-center p-6 bg-white rounded-lg shadow-sm">
+            <div className="w-12 h-12 bg-purple-500 rounded-lg mx-auto mb-4 flex items-center justify-center">
+              <span className="text-white text-xl">🎓</span>
+            </div>
+            <h3 className="font-semibold text-gray-900 mb-2">Educational</h3>
+            <p className="text-gray-600 text-sm">Learn about stablecoins and cryptocurrency</p>
+          </div>
+
+          <div className="text-center p-6 bg-white rounded-lg shadow-sm">
+            <div className="w-12 h-12 bg-red-500 rounded-lg mx-auto mb-4 flex items-center justify-center">
+              <span className="text-white text-xl">⚡</span>
+            </div>
+            <h3 className="font-semibold text-gray-900 mb-2">Fast & Secure</h3>
+            <p className="text-gray-600 text-sm">High-performance gaming with secure transactions</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
