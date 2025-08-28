@@ -55,16 +55,26 @@ export class PlasmaBlockchain {
           method: "wallet_switchEthereumChain",
           params: [{ chainId: PLASMA_NETWORK.chainId }],
         })
+        console.log("✅ Switched to Plasma network")
       } catch (switchError: any) {
         // Network doesn't exist, add it
         if (switchError.code === 4902) {
+          console.log("Adding Plasma network to wallet...")
           await window.ethereum.request({
             method: "wallet_addEthereumChain",
             params: [PLASMA_NETWORK],
           })
+          console.log("✅ Added Plasma network")
         } else {
           throw switchError
         }
+      }
+      
+      // Verify we're on the correct network
+      const chainId = await window.ethereum.request({ method: "eth_chainId" })
+      console.log("Current chainId:", chainId, "Expected:", PLASMA_NETWORK.chainId)
+      if (chainId !== PLASMA_NETWORK.chainId) {
+        throw new Error("Please switch to Plasma Network")
       }
 
       // Initialize contract
@@ -96,10 +106,25 @@ export class PlasmaBlockchain {
       // Get game price
       const gamePrice = await this.contract.gamePrice()
       console.log("Game price:", ethers.formatEther(gamePrice), "XPL")
+      
+      // Check user balance
+      const userBalance = await this.provider!.getBalance(await this.signer!.getAddress())
+      console.log("User balance:", ethers.formatEther(userBalance), "XPL")
+      
+      if (userBalance < gamePrice) {
+        throw new Error(`Insufficient balance. Need ${ethers.formatEther(gamePrice)} XPL, have ${ethers.formatEther(userBalance)} XPL`)
+      }
 
       console.log("Calling purchaseGame contract method...")
-      // Purchase game
-      const tx = await this.contract.purchaseGame({ value: gamePrice })
+      console.log("Contract address:", this.contractAddress)
+      console.log("Game price in wei:", gamePrice.toString())
+      
+      // Purchase game with explicit gas parameters
+      const tx = await this.contract.purchaseGame({ 
+        value: gamePrice,
+        gasLimit: 300000, // Explicit gas limit
+        gasPrice: ethers.parseUnits("1", "gwei") // 1 gwei gas price
+      })
       console.log("Transaction sent:", tx.hash)
       
       console.log("Waiting for transaction confirmation...")
@@ -113,7 +138,25 @@ export class PlasmaBlockchain {
       return gameId
     } catch (error) {
       console.error("Error purchasing game:", error)
-      throw new Error(`Failed to purchase game: ${error instanceof Error ? error.message : 'Unknown error'}`)
+      
+      // Provide more specific error messages
+      let errorMessage = "Failed to purchase game"
+      
+      if (error instanceof Error) {
+        if (error.message.includes("insufficient funds")) {
+          errorMessage = "Insufficient balance to purchase game"
+        } else if (error.message.includes("user rejected")) {
+          errorMessage = "Transaction was rejected by user"
+        } else if (error.message.includes("network")) {
+          errorMessage = "Network error. Please check your connection"
+        } else if (error.message.includes("gas")) {
+          errorMessage = "Gas estimation failed. Please try again"
+        } else {
+          errorMessage = error.message
+        }
+      }
+      
+      throw new Error(errorMessage)
     }
   }
 

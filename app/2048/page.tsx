@@ -251,14 +251,14 @@ export default function Game2048Page() {
           )}
 
           {walletState.isConnected && gameState.isGameActive && (
-            <div className="text-center mb-4">
-              <p className="text-sm text-gray-600">Game in progress...</p>
+            <div className="text-center mb-3">
+              <p className="text-sm text-gray-500 font-medium">🎮 Game in progress...</p>
             </div>
           )}
 
           {gameState.isGameActive && (
             <Card className="bg-white border-gray-200 shadow-lg">
-              <CardContent className="p-6">
+              <CardContent className="p-4">
                 <ScoreBoard score={gameState.score} bestScore={gameState.bestScore} maxTile={gameState.maxTile} />
               </CardContent>
             </Card>
