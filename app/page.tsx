@@ -177,6 +177,9 @@ export default function Home() {
             ]}
             correctAnswer="To maintain a stable value relative to a specific asset or basket of assets"
             explanation="Stablecoins are designed to maintain a stable value relative to a specific asset (like USD) or basket of assets, providing price stability in the volatile cryptocurrency market."
+            walletAddress={null}
+            onUpdateProfile={() => {}}
+            profile={null}
           />
         </div>
 

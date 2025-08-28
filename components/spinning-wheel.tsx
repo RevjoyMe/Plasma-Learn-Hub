@@ -22,30 +22,27 @@ const wheelRewards: WheelReward[] = [
   { id: 6, name: "500 LHP", points: 500, color: "bg-teal-500", probability: 2 },
 ]
 
-export function SpinningWheel() {
+interface SpinningWheelProps {
+  walletAddress?: string | null
+  onUpdateProfile?: (updates: any) => void
+  profile?: any
+}
+
+export function SpinningWheel({ walletAddress, onUpdateProfile, profile }: SpinningWheelProps) {
   const [isSpinning, setIsSpinning] = useState(false)
   const [canSpin, setCanSpin] = useState(false)
   const [timeLeft, setTimeLeft] = useState(0)
-  const [lastSpinTime, setLastSpinTime] = useState<number | null>(null)
-  const [currentStreak, setCurrentStreak] = useState(0)
-  const [totalDays, setTotalDays] = useState(0)
   const [showReward, setShowReward] = useState(false)
   const [wonReward, setWonReward] = useState<WheelReward | null>(null)
 
   useEffect(() => {
-    // Load user data from localStorage
-    const lastSpin = localStorage.getItem("lastSpinTime")
-    const streak = localStorage.getItem("currentStreak") || "0"
-    const total = localStorage.getItem("totalDays") || "0"
-    const lhpPoints = localStorage.getItem("lhpPoints") || "0"
+    if (!profile || !walletAddress) return
 
-    setCurrentStreak(parseInt(streak))
-    setTotalDays(parseInt(total))
+    const lastSpinTime = profile.lastSpinTime
+    const currentStreak = profile.currentStreak
+    const totalDays = profile.totalDays
 
-    if (lastSpin) {
-      const lastSpinTime = parseInt(lastSpin)
-      setLastSpinTime(lastSpinTime)
-      
+    if (lastSpinTime) {
       const now = Date.now()
       const timeSinceLastSpin = now - lastSpinTime
       const cooldownTime = 24 * 60 * 60 * 1000 // 24 hours
@@ -59,7 +56,7 @@ export function SpinningWheel() {
     } else {
       setCanSpin(true)
     }
-  }, [])
+  }, [profile, walletAddress])
 
   useEffect(() => {
     if (timeLeft > 0) {
@@ -108,22 +105,18 @@ export function SpinningWheel() {
 
       // Update user data
       const now = Date.now()
-      const currentLhp = parseInt(localStorage.getItem("lhpPoints") || "0")
-      const newLhp = currentLhp + selectedReward.points
+      const newStreak = profile.currentStreak + 1
+      const newTotalDays = profile.totalDays + 1
       
-      localStorage.setItem("lastSpinTime", now.toString())
-      localStorage.setItem("lhpPoints", newLhp.toString())
+      if (onUpdateProfile) {
+        onUpdateProfile({
+          lastSpinTime: now,
+          currentStreak: newStreak,
+          totalDays: newTotalDays,
+          lhpPoints: profile.lhpPoints + selectedReward.points
+        })
+      }
       
-      // Update streak
-      const newStreak = currentStreak + 1
-      const newTotalDays = totalDays + 1
-      
-      localStorage.setItem("currentStreak", newStreak.toString())
-      localStorage.setItem("totalDays", newTotalDays.toString())
-      
-      setCurrentStreak(newStreak)
-      setTotalDays(newTotalDays)
-      setLastSpinTime(now)
       setCanSpin(false)
       setTimeLeft(24 * 60 * 60) // 24 hours
       setIsSpinning(false)
@@ -146,11 +139,11 @@ export function SpinningWheel() {
           
           <div className="flex justify-center gap-6 mb-4">
             <div className="text-center">
-              <div className="text-2xl font-bold text-teal-600">{totalDays}</div>
+              <div className="text-2xl font-bold text-teal-600">{profile?.totalDays || 0}</div>
               <div className="text-sm text-gray-600">Total Days</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-yellow-600">{currentStreak}</div>
+              <div className="text-2xl font-bold text-yellow-600">{profile?.currentStreak || 0}</div>
               <div className="text-sm text-gray-600">Current Streak</div>
             </div>
           </div>
@@ -231,7 +224,7 @@ export function SpinningWheel() {
                   You won <strong className="text-teal-600">{wonReward.name}</strong>!
                 </p>
                 <p className="text-sm text-gray-600 mb-6">
-                  Your streak: {currentStreak} days
+                  Your streak: {profile?.currentStreak || 0} days
                 </p>
                 <Button
                   onClick={closeReward}

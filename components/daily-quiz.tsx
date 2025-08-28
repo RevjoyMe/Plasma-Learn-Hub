@@ -10,9 +10,12 @@ interface DailyQuizProps {
   options: string[]
   correctAnswer: string
   explanation: string
+  walletAddress?: string | null
+  onUpdateProfile?: (updates: any) => void
+  profile?: any
 }
 
-export function DailyQuiz({ question, options, correctAnswer, explanation }: DailyQuizProps) {
+export function DailyQuiz({ question, options, correctAnswer, explanation, walletAddress, onUpdateProfile, profile }: DailyQuizProps) {
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null)
   const [showResult, setShowResult] = useState(false)
   const [isAnswered, setIsAnswered] = useState(false)
@@ -20,8 +23,10 @@ export function DailyQuiz({ question, options, correctAnswer, explanation }: Dai
 
   // Check if user has already answered today's quiz
   useEffect(() => {
+    if (!profile || !walletAddress) return
+
     const today = new Date().toDateString()
-    const lastAnswered = localStorage.getItem("dailyQuizLastAnswered")
+    const lastAnswered = profile.lastQuizAnswer
     const answeredToday = lastAnswered === today
     
     if (answeredToday) {
@@ -39,7 +44,7 @@ export function DailyQuiz({ question, options, correctAnswer, explanation }: Dai
         setTimeLeft(Math.floor(timeDiff / 1000))
       }
     }
-  }, [])
+  }, [profile, walletAddress])
 
   // Countdown timer
   useEffect(() => {
@@ -58,10 +63,20 @@ export function DailyQuiz({ question, options, correctAnswer, explanation }: Dai
     setShowResult(true)
     setIsAnswered(true)
     
-    // Save to localStorage
+    // Save to profile
     const today = new Date().toDateString()
-    localStorage.setItem("dailyQuizLastAnswered", today)
-    localStorage.setItem("dailyQuizCorrect", (answer === correctAnswer).toString())
+    if (onUpdateProfile) {
+      onUpdateProfile({
+        lastQuizAnswer: today
+      })
+    }
+    
+    // Add LHP points for correct answer
+    if (answer === correctAnswer && onUpdateProfile) {
+      onUpdateProfile({
+        lhpPoints: (profile?.lhpPoints || 0) + 10
+      })
+    }
   }
 
   const formatTime = (seconds: number) => {
