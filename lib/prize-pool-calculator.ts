@@ -13,6 +13,22 @@ export interface PrizePoolData {
   lastUpdated: Date
 }
 
+// Get the start of the current week (Monday 00:00 UTC)
+function getCurrentWeekStart(): Date {
+  const now = new Date()
+  const daysUntilMonday = (8 - now.getUTCDay()) % 7
+  const weekStart = new Date(now.getTime() - daysUntilMonday * 24 * 60 * 60 * 1000)
+  weekStart.setUTCHours(0, 0, 0, 0)
+  return weekStart
+}
+
+// Get the start of the previous week (Monday 00:00 UTC)
+function getPreviousWeekStart(): Date {
+  const currentWeekStart = getCurrentWeekStart()
+  const previousWeekStart = new Date(currentWeekStart.getTime() - 7 * 24 * 60 * 60 * 1000)
+  return previousWeekStart
+}
+
 // Calculate weekly prize pool based on contract data
 export async function calculateWeeklyPrizePool(): Promise<PrizePoolData> {
   try {
@@ -21,16 +37,23 @@ export async function calculateWeeklyPrizePool(): Promise<PrizePoolData> {
     // Get contract instance
     const contract = blockchain.getContract()
     
-    // Get total fees collected this week (this would need to be implemented in the contract)
-    // For now, we'll simulate this with a placeholder value
-    // In a real implementation, you would call a contract method like:
-    // const totalFees = await contract.methods.getWeeklyFees().call()
+    // Get current week start
+    const weekStart = getCurrentWeekStart()
+    const weekStartTimestamp = Math.floor(weekStart.getTime() / 1000)
     
-    // Simulate total fees collected (replace with actual contract call)
-    const totalFees = 0.0085 // This represents 8.5 paid games at 0.001 XPL each
+    // Get all purchase events from the contract for the current week
+    // This would require the contract to emit events for purchases
+    // For now, we'll simulate this with localStorage data
+    const purchaseEvents = await getPurchaseEventsFromStorage(weekStartTimestamp)
+    
+    // Calculate total fees collected this week
+    const totalFees = purchaseEvents.reduce((sum, event) => sum + event.amount, 0)
     
     // Calculate prize pool (10% of total fees)
     const prizePool = totalFees * 0.1
+    
+    // Get unique participants (unique wallet addresses)
+    const uniqueParticipants = new Set(purchaseEvents.map(event => event.walletAddress)).size
     
     // Calculate end date (next Monday at 00:00 UTC)
     const now = new Date()
@@ -55,12 +78,9 @@ export async function calculateWeeklyPrizePool(): Promise<PrizePoolData> {
       { position: 5, percentage: 3, amount: prizePool * 0.03, color: "bg-green-500" },
     ]
     
-    // Estimate participants based on total fees (assuming 0.001 XPL per game)
-    const estimatedParticipants = Math.floor(totalFees / 0.001)
-    
     return {
       totalPool: prizePool,
-      participants: estimatedParticipants,
+      participants: uniqueParticipants,
       endDate: endDateString,
       rewards,
       lastUpdated: new Date()
@@ -110,4 +130,153 @@ export async function getCachedPrizePool(): Promise<PrizePoolData> {
 export function resetPrizePoolCache(): void {
   cachedPrizePool = null
   cacheTimestamp = 0
+}
+
+// Interface for purchase events
+interface PurchaseEvent {
+  walletAddress: string
+  amount: number
+  timestamp: number
+  gameType: string
+}
+
+// Get purchase events from localStorage (simulating contract events)
+async function getPurchaseEventsFromStorage(weekStartTimestamp: number): Promise<PurchaseEvent[]> {
+  try {
+    // Get all purchase events from localStorage
+    const allEvents = JSON.parse(localStorage.getItem('purchaseEvents') || '[]')
+    
+    // Filter events for the current week
+    const currentWeekEvents = allEvents.filter((event: PurchaseEvent) => 
+      event.timestamp >= weekStartTimestamp
+    )
+    
+    return currentWeekEvents
+  } catch (error) {
+    console.error("Error getting purchase events:", error)
+    return []
+  }
+}
+
+// Add purchase event to localStorage (called when user purchases a game)
+export function addPurchaseEvent(walletAddress: string, amount: number, gameType: string): void {
+  try {
+    const event: PurchaseEvent = {
+      walletAddress,
+      amount,
+      timestamp: Math.floor(Date.now() / 1000),
+      gameType
+    }
+    
+    const existingEvents = JSON.parse(localStorage.getItem('purchaseEvents') || '[]')
+    existingEvents.push(event)
+    localStorage.setItem('purchaseEvents', JSON.stringify(existingEvents))
+    
+    // Reset cache to force recalculation
+    resetPrizePoolCache()
+  } catch (error) {
+    console.error("Error adding purchase event:", error)
+  }
+}
+
+// Interface for previous week data
+export interface PreviousWeekData {
+  totalPool: number
+  participants: number
+  winners: {
+    position: number
+    walletAddress: string
+    amount: number
+    nickname?: string
+  }[]
+  weekStart: string
+  weekEnd: string
+}
+
+// Get previous week's prize pool data
+export async function getPreviousWeekData(): Promise<PreviousWeekData | null> {
+  try {
+    const previousWeekStart = getPreviousWeekStart()
+    const currentWeekStart = getCurrentWeekStart()
+    const previousWeekStartTimestamp = Math.floor(previousWeekStart.getTime() / 1000)
+    const currentWeekStartTimestamp = Math.floor(currentWeekStart.getTime() / 1000)
+    
+    // Get purchase events from previous week
+    const allEvents = JSON.parse(localStorage.getItem('purchaseEvents') || '[]')
+    const previousWeekEvents = allEvents.filter((event: PurchaseEvent) => 
+      event.timestamp >= previousWeekStartTimestamp && event.timestamp < currentWeekStartTimestamp
+    )
+    
+    if (previousWeekEvents.length === 0) {
+      return null
+    }
+    
+    // Calculate total fees and participants
+    const totalFees = previousWeekEvents.reduce((sum, event) => sum + event.amount, 0)
+    const totalPool = totalFees * 0.1
+    const uniqueParticipants = new Set(previousWeekEvents.map(event => event.walletAddress)).size
+    
+    // Get winners from leaderboard (simulate based on highest scores)
+    const winners = await getPreviousWeekWinners(previousWeekStartTimestamp, currentWeekStartTimestamp)
+    
+    return {
+      totalPool,
+      participants: uniqueParticipants,
+      winners,
+      weekStart: previousWeekStart.toLocaleDateString('en-US', {
+        weekday: 'long',
+        month: 'short',
+        day: 'numeric',
+        timeZone: 'UTC'
+      }),
+      weekEnd: currentWeekStart.toLocaleDateString('en-US', {
+        weekday: 'long',
+        month: 'short',
+        day: 'numeric',
+        timeZone: 'UTC'
+      })
+    }
+  } catch (error) {
+    console.error("Error getting previous week data:", error)
+    return null
+  }
+}
+
+// Get previous week winners (simulate based on leaderboard data)
+async function getPreviousWeekWinners(weekStart: number, weekEnd: number): Promise<PreviousWeekData['winners']> {
+  try {
+    // Get XPL Quiz leaderboard data
+    const leaderboardData = JSON.parse(localStorage.getItem('leaderboard_xpl_quiz_global') || '[]')
+    
+    // Filter for previous week and sort by score
+    const previousWeekEntries = leaderboardData
+      .filter((entry: any) => {
+        const entryTime = new Date(entry.timestamp || Date.now()).getTime() / 1000
+        return entryTime >= weekStart && entryTime < weekEnd
+      })
+      .sort((a: any, b: any) => b.score - a.score)
+    
+    // Take top 5 winners
+    const top5 = previousWeekEntries.slice(0, 5)
+    
+    // Calculate reward amounts (same distribution as current week)
+    const totalPool = 0.85 // This would be calculated from actual data
+    const rewards = [
+      { position: 1, percentage: 50, amount: totalPool * 0.5 },
+      { position: 2, percentage: 25, amount: totalPool * 0.25 },
+      { position: 3, percentage: 15, amount: totalPool * 0.15 },
+      { position: 4, percentage: 7, amount: totalPool * 0.07 },
+      { position: 5, percentage: 3, amount: totalPool * 0.03 },
+    ]
+    
+    return top5.map((entry: any, index: number) => ({
+      position: index + 1,
+      walletAddress: entry.walletAddress || 'Unknown',
+      amount: rewards[index]?.amount || 0,
+      nickname: entry.nickname || 'Anonymous'
+    }))
+  } catch (error) {
+    console.error("Error getting previous week winners:", error)
+    return []
+  }
 }

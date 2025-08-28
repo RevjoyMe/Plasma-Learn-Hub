@@ -13,6 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Gamepad2, Coins, Home } from "lucide-react"
 import Link from "next/link"
 import { addTo2048Leaderboard } from "@/lib/leaderboard"
+import { addPurchaseEvent } from "@/lib/prize-pool-calculator"
 
 // Contract address - should be set via environment variable in production
 const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || "0xB9C509d0aA9ca8B083E73531Ab06Fb81B26DC918"
@@ -111,6 +112,12 @@ export default function Game2048Page() {
     setIsPurchasing(true)
     try {
       const gameId = await purchaseGame()
+      
+      // Record purchase event for prize pool calculation
+      if (walletState.address) {
+        addPurchaseEvent(walletState.address, 0.001, '2048')
+      }
+      
       startNewGame(gameId)
       setShowPurchaseModal(false)
     } catch (error) {

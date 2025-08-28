@@ -65,9 +65,9 @@ export default function LeaderboardPage() {
   const getGameName = (game: GameType) => {
     switch (game) {
       case "quiz":
-        return "StableCoin Quiz"
+        return "Stablecoin Quiz"
       case "xpl-quiz":
-        return "XPL Quiz"
+        return "XPL Stablecoin Quiz"
       case "2048":
         return "2048 Game"
     }
@@ -88,10 +88,18 @@ export default function LeaderboardPage() {
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
-        <div className="text-center mb-8">
-          <div className="text-4xl font-black text-teal-600 mb-6">PLASMA</div>
-          <h1 className="text-4xl font-black mb-4 text-gray-900">Leaderboards</h1>
-          <p className="text-gray-600">See how you rank against other players</p>
+        <div className="flex items-center justify-between mb-8">
+          <div className="text-center flex-1">
+            <div className="text-4xl font-black text-teal-600 mb-6">PLASMA</div>
+            <h1 className="text-4xl font-black mb-4 text-gray-900">Leaderboards</h1>
+            <p className="text-gray-600">See how you rank against other players</p>
+          </div>
+          <Link href="/">
+            <Button variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-50 bg-transparent">
+              <Home className="mr-2 w-4 h-4" />
+              Back to Menu
+            </Button>
+          </Link>
         </div>
 
         {/* Rewards System */}

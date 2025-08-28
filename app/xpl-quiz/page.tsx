@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation"
 import { WalletConnection } from "@/components/wallet-connection"
 import { useBlockchain } from "@/hooks/use-blockchain"
 import { QuizStats } from "@/components/quiz-stats"
+import { addPurchaseEvent } from "@/lib/prize-pool-calculator"
 import Link from "next/link"
 
 interface XPLQuizState {
@@ -59,6 +60,11 @@ export default function XPLQuizPage() {
       console.log("Starting game purchase...")
       const gameId = await purchaseGame()
       console.log("Game purchased successfully, gameId:", gameId)
+      
+      // Record purchase event for prize pool calculation
+      if (walletState.address) {
+        addPurchaseEvent(walletState.address, 0.001, 'xpl-quiz')
+      }
       
       // Generate 20 unique random questions from the entire pool with monitoring
       console.log("Generating 20 unique random questions...")
