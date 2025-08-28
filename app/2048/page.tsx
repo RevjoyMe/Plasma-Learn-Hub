@@ -250,8 +250,10 @@ export default function Game2048Page() {
             </Card>
           )}
 
-          {walletState.isConnected && (
-            
+          {walletState.isConnected && gameState.isGameActive && (
+            <div className="text-center mb-4">
+              <p className="text-sm text-gray-600">Game in progress...</p>
+            </div>
           )}
 
           {gameState.isGameActive && (
