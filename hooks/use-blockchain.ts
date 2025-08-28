@@ -18,6 +18,8 @@ interface PlayerStats {
 }
 
 export function useBlockchain(contractAddress = "") {
+  console.log("useBlockchain called with contractAddress:", contractAddress)
+  
   const [walletState, setWalletState] = useState<WalletState>({
     isConnected: false,
     address: null,

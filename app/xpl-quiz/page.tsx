@@ -39,7 +39,7 @@ export default function XPLQuizPage() {
     nickname: "",
   })
 
-  const { walletState, connectWallet, purchaseGame } = useBlockchain(process.env.NEXT_PUBLIC_CONTRACT_ADDRESS)
+  const { walletState, connectWallet, purchaseGame } = useBlockchain(process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || "0xB9C509d0aA9ca8B083E73531Ab06Fb81B26DC918")
   const router = useRouter()
 
   useEffect(() => {

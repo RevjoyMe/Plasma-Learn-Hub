@@ -32,6 +32,7 @@ export class PlasmaBlockchain {
   private currentAddress: string | null = null
 
   constructor(contractAddress: string) {
+    console.log("PlasmaBlockchain constructor called with address:", contractAddress)
     this.contractAddress = contractAddress
   }
 
@@ -242,7 +243,9 @@ export class PlasmaBlockchain {
 let blockchainInstance: PlasmaBlockchain | null = null
 
 export function getBlockchainInstance(contractAddress = ""): PlasmaBlockchain {
+  console.log("getBlockchainInstance called with contractAddress:", contractAddress)
   if (!blockchainInstance) {
+    console.log("Creating new blockchain instance with address:", contractAddress)
     blockchainInstance = new PlasmaBlockchain(contractAddress)
   }
   return blockchainInstance
