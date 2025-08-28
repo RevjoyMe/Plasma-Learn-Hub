@@ -347,10 +347,34 @@ export const quizQuestions: QuizQuestion[] = [
   },
 ]
 
-// Shuffle function to randomize questions
+// Fisher-Yates shuffle algorithm for better randomization
+function shuffleArray<T>(array: T[]): T[] {
+  const shuffled = [...array]
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+  }
+  return shuffled
+}
+
+// Get random questions with no duplicates
 export function getRandomQuestions(count = 10): QuizQuestion[] {
-  const shuffled = [...quizQuestions].sort(() => 0.5 - Math.random())
-  return shuffled.slice(0, count)
+  if (count > quizQuestions.length) {
+    console.warn(`Requested ${count} questions but only ${quizQuestions.length} available. Returning all questions.`)
+    return shuffleArray(quizQuestions)
+  }
+  
+  return shuffleArray(quizQuestions).slice(0, count)
+}
+
+// Get unique random questions for XPL Quiz (no duplicates within session)
+export function getUniqueRandomQuestions(count = 20): QuizQuestion[] {
+  if (count > quizQuestions.length) {
+    console.warn(`Requested ${count} unique questions but only ${quizQuestions.length} available. Returning all questions.`)
+    return shuffleArray(quizQuestions)
+  }
+  
+  return shuffleArray(quizQuestions).slice(0, count)
 }
 
 // Get infinite random question (not in recent history)
@@ -361,4 +385,59 @@ export function getNextRandomQuestion(recentQuestionIds: number[] = []): QuizQue
     return quizQuestions[Math.floor(Math.random() * quizQuestions.length)]
   }
   return availableQuestions[Math.floor(Math.random() * availableQuestions.length)]
+}
+
+// Get questions by category
+export function getQuestionsByCategory(category: string): QuizQuestion[] {
+  return quizQuestions.filter(q => q.category === category)
+}
+
+// Get all available categories
+export function getAvailableCategories(): string[] {
+  return [...new Set(quizQuestions.map(q => q.category))]
+}
+
+// Get question statistics
+export function getQuestionStats() {
+  const totalQuestions = quizQuestions.length
+  const categories = getAvailableCategories()
+  const categoryStats = categories.map(category => ({
+    category,
+    count: getQuestionsByCategory(category).length
+  }))
+  
+  return {
+    totalQuestions,
+    categories: categoryStats
+  }
+}
+
+// Validate that questions are unique
+export function validateUniqueQuestions(questions: QuizQuestion[]): boolean {
+  const questionIds = questions.map(q => q.id)
+  const uniqueIds = new Set(questionIds)
+  return uniqueIds.size === questionIds.length
+}
+
+// Get questions with performance monitoring
+export function getUniqueRandomQuestionsWithMonitoring(count = 20): {
+  questions: QuizQuestion[]
+  performance: {
+    generationTime: number
+    isUnique: boolean
+    totalQuestions: number
+  }
+} {
+  const startTime = performance.now()
+  const questions = getUniqueRandomQuestions(count)
+  const endTime = performance.now()
+  
+  return {
+    questions,
+    performance: {
+      generationTime: endTime - startTime,
+      isUnique: validateUniqueQuestions(questions),
+      totalQuestions: quizQuestions.length
+    }
+  }
 }

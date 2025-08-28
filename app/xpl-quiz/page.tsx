@@ -4,10 +4,11 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { CheckCircle, XCircle, ArrowRight, Flame, Star, Coins, Home } from "lucide-react"
-import { getRandomQuestions } from "@/lib/quiz-data"
+import { getUniqueRandomQuestionsWithMonitoring } from "@/lib/quiz-data"
 import { useRouter } from "next/navigation"
 import { WalletConnection } from "@/components/wallet-connection"
 import { useBlockchain } from "@/hooks/use-blockchain"
+import { QuizStats } from "@/components/quiz-stats"
 import Link from "next/link"
 
 interface XPLQuizState {
@@ -59,8 +60,14 @@ export default function XPLQuizPage() {
       const gameId = await purchaseGame()
       console.log("Game purchased successfully, gameId:", gameId)
       
-      // Generate 20 random questions
-      const randomQuestions = getRandomQuestions(20)
+      // Generate 20 unique random questions from the entire pool with monitoring
+      console.log("Generating 20 unique random questions...")
+      const { questions: randomQuestions, performance } = getUniqueRandomQuestionsWithMonitoring(20)
+      console.log(`Question generation completed in ${performance.generationTime.toFixed(2)}ms`)
+      console.log(`Selected questions: ${randomQuestions.map(q => q.id).join(', ')}`)
+      console.log(`Questions are unique: ${performance.isUnique}`)
+      console.log(`Total questions in pool: ${performance.totalQuestions}`)
+      
       setQuizState((prev) => ({
         ...prev,
         questions: randomQuestions,
@@ -174,7 +181,7 @@ export default function XPLQuizPage() {
                   <Coins className="w-12 h-12 text-yellow-500 mr-4" />
                   <div>
                     <div className="text-2xl font-bold text-gray-900">Premium Quiz</div>
-                    <div className="text-gray-600">20 Random Questions</div>
+                    <div className="text-gray-600">20 Unique Questions from Full Pool</div>
                   </div>
                 </div>
 
@@ -188,7 +195,7 @@ export default function XPLQuizPage() {
                     <div className="text-sm text-gray-500">Price</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-xl font-bold text-purple-600">Random</div>
+                    <div className="text-xl font-bold text-purple-600">Unique</div>
                     <div className="text-sm text-gray-500">Selection</div>
                   </div>
                 </div>
@@ -200,6 +207,11 @@ export default function XPLQuizPage() {
                 )}
               </CardContent>
             </Card>
+
+            {/* Quiz Statistics */}
+            <div className="mb-6">
+              <QuizStats />
+            </div>
 
             <WalletConnection
               isConnected={walletState.isConnected}
