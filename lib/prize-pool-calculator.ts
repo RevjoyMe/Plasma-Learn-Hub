@@ -32,58 +32,115 @@ function getPreviousWeekStart(): Date {
 // Calculate weekly prize pool based on contract data
 export async function calculateWeeklyPrizePool(): Promise<PrizePoolData> {
   try {
-    const blockchain = getBlockchainInstance()
-    
-    // Get contract instance
-    const contract = blockchain.getContract()
+    const contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || "0xB9C509d0aA9ca8B083E73531Ab06Fb81B26DC918"
+    const blockchain = getBlockchainInstance(contractAddress)
     
     // Get current week start
     const weekStart = getCurrentWeekStart()
     const weekStartTimestamp = Math.floor(weekStart.getTime() / 1000)
     
-    // Get all purchase events from the contract for the current week
-    // This would require the contract to emit events for purchases
-    // For now, we'll simulate this with localStorage data
-    const purchaseEvents = await getPurchaseEventsFromStorage(weekStartTimestamp)
+    console.log("Calculating weekly prize pool...")
+    console.log("Contract address:", contractAddress)
+    console.log("Week start timestamp:", weekStartTimestamp)
     
-    // Calculate total fees collected this week
-    const totalFees = purchaseEvents.reduce((sum, event) => sum + event.amount, 0)
-    
-    // Calculate prize pool (10% of total fees)
-    const prizePool = totalFees * 0.1
-    
-    // Get unique participants (unique wallet addresses)
-    const uniqueParticipants = new Set(purchaseEvents.map(event => event.walletAddress)).size
-    
-    // Calculate end date (next Monday at 00:00 UTC)
-    const now = new Date()
-    const daysUntilMonday = (8 - now.getUTCDay()) % 7
-    const endDate = new Date(now.getTime() + daysUntilMonday * 24 * 60 * 60 * 1000)
-    endDate.setUTCHours(0, 0, 0, 0)
-    
-    // Format end date
-    const endDateString = endDate.toLocaleDateString('en-US', {
-      weekday: 'long',
-      month: 'short',
-      day: 'numeric',
-      timeZone: 'UTC'
-    }) + ' at 00:00 UTC'
-    
-    // Calculate rewards distribution
-    const rewards = [
-      { position: 1, percentage: 50, amount: prizePool * 0.5, color: "bg-yellow-500" },
-      { position: 2, percentage: 25, amount: prizePool * 0.25, color: "bg-gray-400" },
-      { position: 3, percentage: 15, amount: prizePool * 0.15, color: "bg-orange-600" },
-      { position: 4, percentage: 7, amount: prizePool * 0.07, color: "bg-blue-500" },
-      { position: 5, percentage: 3, amount: prizePool * 0.03, color: "bg-green-500" },
-    ]
-    
-    return {
-      totalPool: prizePool,
-      participants: uniqueParticipants,
-      endDate: endDateString,
-      rewards,
-      lastUpdated: new Date()
+    // Try to get data from contract first
+    try {
+      const contractData = await blockchain.getWeeklyPrizePoolData(weekStartTimestamp)
+      
+      console.log("Contract data received:", contractData)
+      
+      // Calculate prize pool (10% of total fees)
+      const prizePool = contractData.totalFees * 0.1
+      
+      // Calculate end date (next Monday at 00:00 UTC)
+      const now = new Date()
+      const daysUntilMonday = (8 - now.getUTCDay()) % 7
+      const endDate = new Date(now.getTime() + daysUntilMonday * 24 * 60 * 60 * 1000)
+      endDate.setUTCHours(0, 0, 0, 0)
+      
+      // Format end date
+      const endDateString = endDate.toLocaleDateString('en-US', {
+        weekday: 'long',
+        month: 'short',
+        day: 'numeric',
+        timeZone: 'UTC'
+      }) + ' at 00:00 UTC'
+      
+      // Calculate rewards distribution
+      const rewards = [
+        { position: 1, percentage: 50, amount: prizePool * 0.5, color: "bg-yellow-500" },
+        { position: 2, percentage: 25, amount: prizePool * 0.25, color: "bg-gray-400" },
+        { position: 3, percentage: 15, amount: prizePool * 0.15, color: "bg-orange-600" },
+        { position: 4, percentage: 7, amount: prizePool * 0.07, color: "bg-blue-500" },
+        { position: 5, percentage: 3, amount: prizePool * 0.03, color: "bg-green-500" },
+      ]
+      
+      console.log("Prize pool calculated:", {
+        totalPool: prizePool,
+        participants: contractData.uniqueParticipants,
+        totalFees: contractData.totalFees,
+        totalGames: contractData.totalGames
+      })
+      
+      return {
+        totalPool: prizePool,
+        participants: contractData.uniqueParticipants,
+        endDate: endDateString,
+        rewards,
+        lastUpdated: new Date()
+      }
+    } catch (contractError) {
+      console.log("Contract data unavailable, falling back to localStorage:", contractError)
+      
+      // Fallback to localStorage data
+      const purchaseEvents = await getPurchaseEventsFromStorage(weekStartTimestamp)
+      
+      // Calculate total fees collected this week
+      const totalFees = purchaseEvents.reduce((sum, event) => sum + event.amount, 0)
+      
+      // Calculate prize pool (10% of total fees)
+      const prizePool = totalFees * 0.1
+      
+      // Get unique participants (unique wallet addresses)
+      const uniqueParticipants = new Set(purchaseEvents.map(event => event.walletAddress)).size
+      
+      // Calculate end date (next Monday at 00:00 UTC)
+      const now = new Date()
+      const daysUntilMonday = (8 - now.getUTCDay()) % 7
+      const endDate = new Date(now.getTime() + daysUntilMonday * 24 * 60 * 60 * 1000)
+      endDate.setUTCHours(0, 0, 0, 0)
+      
+      // Format end date
+      const endDateString = endDate.toLocaleDateString('en-US', {
+        weekday: 'long',
+        month: 'short',
+        day: 'numeric',
+        timeZone: 'UTC'
+      }) + ' at 00:00 UTC'
+      
+      // Calculate rewards distribution
+      const rewards = [
+        { position: 1, percentage: 50, amount: prizePool * 0.5, color: "bg-yellow-500" },
+        { position: 2, percentage: 25, amount: prizePool * 0.25, color: "bg-gray-400" },
+        { position: 3, percentage: 15, amount: prizePool * 0.15, color: "bg-orange-600" },
+        { position: 4, percentage: 7, amount: prizePool * 0.07, color: "bg-blue-500" },
+        { position: 5, percentage: 3, amount: prizePool * 0.03, color: "bg-green-500" },
+      ]
+      
+      console.log("Fallback prize pool calculated:", {
+        totalPool: prizePool,
+        participants: uniqueParticipants,
+        totalFees: totalFees,
+        totalGames: purchaseEvents.length
+      })
+      
+      return {
+        totalPool: prizePool,
+        participants: uniqueParticipants,
+        endDate: endDateString,
+        rewards,
+        lastUpdated: new Date()
+      }
     }
   } catch (error) {
     console.error("Error calculating prize pool:", error)
@@ -196,45 +253,90 @@ export interface PreviousWeekData {
 // Get previous week's prize pool data
 export async function getPreviousWeekData(): Promise<PreviousWeekData | null> {
   try {
+    const contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || "0xB9C509d0aA9ca8B083E73531Ab06Fb81B26DC918"
+    const blockchain = getBlockchainInstance(contractAddress)
+    
     const previousWeekStart = getPreviousWeekStart()
     const currentWeekStart = getCurrentWeekStart()
     const previousWeekStartTimestamp = Math.floor(previousWeekStart.getTime() / 1000)
     const currentWeekStartTimestamp = Math.floor(currentWeekStart.getTime() / 1000)
     
-    // Get purchase events from previous week
-    const allEvents = JSON.parse(localStorage.getItem('purchaseEvents') || '[]')
-    const previousWeekEvents = allEvents.filter((event: PurchaseEvent) => 
-      event.timestamp >= previousWeekStartTimestamp && event.timestamp < currentWeekStartTimestamp
-    )
+    console.log("Getting previous week data...")
+    console.log("Previous week start:", previousWeekStartTimestamp)
+    console.log("Current week start:", currentWeekStartTimestamp)
     
-    if (previousWeekEvents.length === 0) {
-      return null
-    }
-    
-    // Calculate total fees and participants
-    const totalFees = previousWeekEvents.reduce((sum, event) => sum + event.amount, 0)
-    const totalPool = totalFees * 0.1
-    const uniqueParticipants = new Set(previousWeekEvents.map(event => event.walletAddress)).size
-    
-    // Get winners from leaderboard (simulate based on highest scores)
-    const winners = await getPreviousWeekWinners(previousWeekStartTimestamp, currentWeekStartTimestamp)
-    
-    return {
-      totalPool,
-      participants: uniqueParticipants,
-      winners,
-      weekStart: previousWeekStart.toLocaleDateString('en-US', {
-        weekday: 'long',
-        month: 'short',
-        day: 'numeric',
-        timeZone: 'UTC'
-      }),
-      weekEnd: currentWeekStart.toLocaleDateString('en-US', {
-        weekday: 'long',
-        month: 'short',
-        day: 'numeric',
-        timeZone: 'UTC'
-      })
+    // Try to get data from contract first
+    try {
+      const contractData = await blockchain.getWeeklyPrizePoolData(previousWeekStartTimestamp)
+      
+      console.log("Previous week contract data:", contractData)
+      
+      if (contractData.totalGames === 0) {
+        console.log("No games in previous week")
+        return null
+      }
+      
+      // Calculate total pool (10% of total fees)
+      const totalPool = contractData.totalFees * 0.1
+      
+      // Get winners from leaderboard (simulate based on highest scores)
+      const winners = await getPreviousWeekWinners(previousWeekStartTimestamp, currentWeekStartTimestamp)
+      
+      return {
+        totalPool,
+        participants: contractData.uniqueParticipants,
+        winners,
+        weekStart: previousWeekStart.toLocaleDateString('en-US', {
+          weekday: 'long',
+          month: 'short',
+          day: 'numeric',
+          timeZone: 'UTC'
+        }),
+        weekEnd: currentWeekStart.toLocaleDateString('en-US', {
+          weekday: 'long',
+          month: 'short',
+          day: 'numeric',
+          timeZone: 'UTC'
+        })
+      }
+    } catch (contractError) {
+      console.log("Contract data unavailable for previous week, falling back to localStorage:", contractError)
+      
+      // Fallback to localStorage data
+      const allEvents = JSON.parse(localStorage.getItem('purchaseEvents') || '[]')
+      const previousWeekEvents = allEvents.filter((event: PurchaseEvent) => 
+        event.timestamp >= previousWeekStartTimestamp && event.timestamp < currentWeekStartTimestamp
+      )
+      
+      if (previousWeekEvents.length === 0) {
+        return null
+      }
+      
+      // Calculate total fees and participants
+      const totalFees = previousWeekEvents.reduce((sum, event) => sum + event.amount, 0)
+      const totalPool = totalFees * 0.1
+      const uniqueParticipants = new Set(previousWeekEvents.map(event => event.walletAddress)).size
+      
+      // Get winners from leaderboard (simulate based on highest scores)
+      const winners = await getPreviousWeekWinners(previousWeekStartTimestamp, currentWeekStartTimestamp)
+      
+      return {
+        totalPool,
+        participants: uniqueParticipants,
+        winners,
+        weekStart: previousWeekStart.toLocaleDateString('en-US', {
+          weekday: 'long',
+          month: 'short',
+          day: 'numeric',
+          timeZone: 'UTC'
+        }),
+        weekEnd: currentWeekStart.toLocaleDateString('en-US', {
+          weekday: 'long',
+          month: 'short',
+          day: 'numeric',
+          timeZone: 'UTC'
+        })
+      }
     }
   } catch (error) {
     console.error("Error getting previous week data:", error)
@@ -259,8 +361,21 @@ async function getPreviousWeekWinners(weekStart: number, weekEnd: number): Promi
     // Take top 5 winners
     const top5 = previousWeekEntries.slice(0, 5)
     
+    // Get the actual total pool from the previous week data
+    const contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || "0xB9C509d0aA9ca8B083E73531Ab06Fb81B26DC918"
+    const blockchain = getBlockchainInstance(contractAddress)
+    
+    let totalPool = 0.85 // Default fallback value
+    
+    try {
+      const contractData = await blockchain.getWeeklyPrizePoolData(weekStart)
+      totalPool = contractData.totalFees * 0.1
+    } catch (error) {
+      console.log("Could not get actual total pool, using fallback:", error)
+      // Use fallback value
+    }
+    
     // Calculate reward amounts (same distribution as current week)
-    const totalPool = 0.85 // This would be calculated from actual data
     const rewards = [
       { position: 1, percentage: 50, amount: totalPool * 0.5 },
       { position: 2, percentage: 25, amount: totalPool * 0.25 },

@@ -109,6 +109,16 @@ export function LeaderboardRewards({
             </p>
           </div>
 
+          {/* Data Source Info */}
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+            <p className="text-sm text-blue-800 font-medium">
+              📊 Data Source: Smart Contract {process.env.NEXT_PUBLIC_CONTRACT_ADDRESS?.slice(0, 10)}...
+            </p>
+            <p className="text-xs text-blue-600 mt-1">
+              Real-time data from Plasma Network • Updates every 5 minutes
+            </p>
+          </div>
+
         {/* Compact Stats Row */}
         <div className="grid grid-cols-3 gap-3 mb-4">
           <div className="text-center p-2 bg-white rounded-lg border border-gray-200">
@@ -152,16 +162,18 @@ export function LeaderboardRewards({
           </div>
         </div>
 
-        {/* Compact How it works */}
-        <div className="bg-white rounded-lg p-3 border border-gray-200">
-          <h4 className="text-sm font-semibold text-gray-900 mb-2">How it works:</h4>
-          <ul className="text-xs text-gray-600 space-y-1">
-            <li>• 10% of all paid game entry fees go to the weekly prize pool</li>
-            <li>• Winners are determined by highest scores at the end of each week</li>
-            <li>• Rewards are automatically distributed to winners' wallets</li>
-            <li>• New prize pool starts every Monday at 00:00 UTC</li>
-          </ul>
-        </div>
+                  {/* Compact How it works */}
+          <div className="bg-white rounded-lg p-3 border border-gray-200">
+            <h4 className="text-sm font-semibold text-gray-900 mb-2">How it works:</h4>
+            <ul className="text-xs text-gray-600 space-y-1">
+              <li>• 10% of all paid game entry fees from smart contract go to the weekly prize pool</li>
+              <li>• Participants count shows unique wallet addresses that purchased games this week</li>
+              <li>• Winners are determined by highest scores in XPL Stablecoin Quiz at week end</li>
+              <li>• Rewards are automatically distributed to winners' wallets</li>
+              <li>• New prize pool starts every Monday at 00:00 UTC</li>
+              <li>• Data is fetched directly from contract {process.env.NEXT_PUBLIC_CONTRACT_ADDRESS?.slice(0, 10)}...</li>
+            </ul>
+          </div>
       </CardContent>
     </Card>
 
