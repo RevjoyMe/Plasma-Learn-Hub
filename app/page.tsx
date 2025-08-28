@@ -8,26 +8,75 @@ import { DailyQuiz } from "@/components/daily-quiz"
 export default function Home() {
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-12">
-          <h1 className="text-5xl font-bold text-gray-900 mb-4">Plasma Learn Hub</h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            A high-performance gaming platform built for stablecoins. Learn about cryptocurrency while having fun with
-            blockchain-powered games.
-          </p>
-          <div className="mt-6">
-            <Link
-              href="https://discord.com/invite/plasmafdn"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center space-x-2 text-indigo-600 hover:text-indigo-800 font-medium"
-            >
-              <span>💬</span>
-              <span>Join Plasma Discord Community</span>
-            </Link>
+    <div className="min-h-screen bg-gray-50">
+      {/* Header Section */}
+      <div className="bg-white border-b border-gray-200 shadow-sm">
+        <div className="max-w-6xl mx-auto px-6 py-8">
+          <div className="text-center">
+            <h1 className="text-5xl font-bold text-gray-900 mb-4">Plasma Learn Hub</h1>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-6">
+              A high-performance gaming platform built for stablecoins. Learn about cryptocurrency while having fun with
+              blockchain-powered games.
+            </p>
+            
+            {/* Navigation Buttons */}
+            <div className="flex justify-center gap-4 flex-wrap mb-6">
+              <Link href="/leaderboard">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="border-teal-600 text-teal-600 hover:bg-teal-50 bg-transparent px-6 py-2"
+                >
+                  🏆 View Leaderboards
+                </Button>
+              </Link>
+              <Link href="/profile">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="border-purple-600 text-purple-600 hover:bg-purple-50 bg-transparent px-6 py-2"
+                >
+                  👤 My Profile
+                </Button>
+              </Link>
+              <Link href="/quests">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="border-yellow-600 text-yellow-600 hover:bg-yellow-50 bg-transparent px-6 py-2"
+                >
+                  🎯 Quests
+                </Button>
+              </Link>
+              <Link href="/partnerships">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="border-blue-600 text-blue-600 hover:bg-blue-50 bg-transparent px-6 py-2"
+                >
+                  🤝 Partnerships
+                </Button>
+              </Link>
+            </div>
+            
+            {/* Discord Link */}
+            <div>
+              <Link
+                href="https://discord.com/invite/plasmafdn"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center space-x-2 text-indigo-600 hover:text-indigo-800 font-medium"
+              >
+                <span>💬</span>
+                <span>Join Plasma Discord Community</span>
+              </Link>
+            </div>
           </div>
         </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="max-w-6xl mx-auto px-6 py-8">
 
         <div className="grid md:grid-cols-3 gap-8 mb-12">
           {/* Quiz Card */}
@@ -122,47 +171,6 @@ export default function Home() {
             </CardContent>
             </Card>
           </Link>
-        </div>
-
-        <div className="text-center mb-12">
-          <div className="flex justify-center gap-4 flex-wrap">
-            <Link href="/leaderboard">
-              <Button
-                size="lg"
-                variant="outline"
-                className="border-teal-600 text-teal-600 hover:bg-teal-50 bg-transparent px-8 py-3"
-              >
-                🏆 View Leaderboards
-              </Button>
-            </Link>
-            <Link href="/profile">
-              <Button
-                size="lg"
-                variant="outline"
-                className="border-purple-600 text-purple-600 hover:bg-purple-50 bg-transparent px-8 py-3"
-              >
-                👤 My Profile
-              </Button>
-            </Link>
-            <Link href="/quests">
-              <Button
-                size="lg"
-                variant="outline"
-                className="border-yellow-600 text-yellow-600 hover:bg-yellow-50 bg-transparent px-8 py-3"
-              >
-                🎯 Quests
-              </Button>
-            </Link>
-            <Link href="/partnerships">
-              <Button
-                size="lg"
-                variant="outline"
-                className="border-blue-600 text-blue-600 hover:bg-blue-50 bg-transparent px-8 py-3"
-              >
-                🤝 Partnerships
-              </Button>
-            </Link>
-          </div>
         </div>
 
         {/* Daily Quiz Section */}

@@ -96,11 +96,7 @@ export default function LeaderboardPage() {
 
         {/* Rewards System */}
         <div className="mb-8">
-          <LeaderboardRewards
-            prizePool={0.85}
-            totalParticipants={leaderboard.length}
-            endDate="Monday, 00:00 UTC"
-          />
+          <LeaderboardRewards />
         </div>
 
         {/* Game Selection */}
